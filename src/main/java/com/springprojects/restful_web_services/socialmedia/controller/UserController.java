@@ -5,6 +5,10 @@ import com.springprojects.restful_web_services.socialmedia.model.UserDaoService;
 import jakarta.validation.Valid;
 import java.net.URI;
 import java.util.List;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,8 +34,11 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public User retrieveUser(@PathVariable int id) {
-        return userDaoService.findOne(id);
+    public EntityModel<User> retrieveUser(@PathVariable int id) {
+        EntityModel<User> entityModel = EntityModel.of(userDaoService.findOne(id));
+        WebMvcLinkBuilder link = linkTo(methodOn(this.getClass()).retrieveAllUsers());
+        entityModel.add(link.withRel("all-users"));
+        return entityModel;
     }
 
     @PostMapping
